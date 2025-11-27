@@ -54,19 +54,35 @@ queue<int> Graph::bfs(int startKey) const
 //      containing the keys of the vertices in the order they were visited	
 queue<int> Graph::dfs(int startKey) const
 {
-	// To Do: Complete this method
-    // 1. Make an empty queue<int> result
-    // 2. Make a visited unordered_map<int, bool>
-    // 3. Make a stack<int> toVisit and push startKey
-    // 4. While stack is not empty:
-    //      a. Let v = stack.top(), pop it
-    //      b. If v not visited:
-    //            * Mark visited = true
-    //            * Push v into result queue
-    //      c. For each Edge e in edges.at(v) (optional: traverse list in reverse):
-    //            - If e.toKey not visited:
-    //                * Push e.toKey into the stack
-    // 5. Return result queue
+    if (!hasVertex(startKey)) {
+        throw invalid_argument("error: start vertex not found");
+    }
+
+    queue<int> result;
+    unordered_map<int, bool> visited;
+    stack<int> toVisit;
+
+    toVisit.push(startKey);
+
+    while (!toVisit.empty()) {
+        int v = toVisit.top();
+        toVisit.pop();
+
+        if (!visited[v]) {
+            visited[v] = true;
+            result.push(v);
+
+            if (edges.find(v) != edges.end()) {
+                for (const Edge &e : edges.at(v)) {
+                    if (!visited[e.toKey]) {
+                        toVisit.push(e.toKey);
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 //PRE: startKey and endKey are in the graph
