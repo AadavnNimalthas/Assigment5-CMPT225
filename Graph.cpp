@@ -93,16 +93,28 @@ queue<int> Graph::dfs(int startKey) const
 //      order they appear in the shortest path from startKey to endKey	
 stack<int> Graph::getShortestPath(int startKey, int endKey, int& cost) const
 {
-	// To Do: Complete this method
-    // 1. Call dijkstra(startKey) -> store in map paths
-    // 2. Create empty stack<int> result
-    // 3. Let cur = endKey
-    // 4. totalCost = paths.at(endKey).cost
-    // 5. While cur != -1:
-    //        Push cur into result stack
-    //        cur = paths.at(cur).parentKey
-    // 6. Set cost = totalCost
-    // 7. Return result stack
+    if (!hasVertex(startKey) || !hasVertex(endKey)) {
+        throw invalid_argument("error: start or end vertex not found");
+    }
+
+    unordered_map<int, SPResultRecord> paths = dijkstra(startKey);
+
+    stack<int> result;
+
+    if (!paths.count(endKey)) {
+        cost = INT_INFINITY;
+        return result;
+    }
+
+    cost = paths.at(endKey).cost;
+
+    int cur = endKey;
+    while (cur != -1) {
+        result.push(cur);
+        cur = paths.at(cur).parentKey;
+    }
+
+    return result;
 }
 
 // Helper method for getShortestPath
@@ -115,24 +127,41 @@ stack<int> Graph::getShortestPath(int startKey, int endKey, int& cost) const
 unordered_map<int, SPResultRecord> Graph::dijkstra(int startKey) const
 {
 	// To Do: Complete this method
-    // 1. Make unordered_map<int, SPResultRecord> result
-    // 2. Make a min-heap priority queue:
-    //      priority_queue<PathRecord, vector<PathRecord>, PathRecordComparator> toVisit
-    // 3. Make unordered_map<int, int> lowestCost
-    // 4. Insert initial record:
-    //      PathRecord(startKey, 0, -1) into toVisit
-    //      lowestCost[startKey] = 0
-    // 5. While toVisit not empty:
-    //      a. Pop top record -> call it cur
-    //      b. If cur.vKey already in result, skip (continue)
-    //      c. Add cur.vKey to result:
-    //            result[cur.vKey] = SPResultRecord(cur.cost, cur.parentKey)
-    //      d. For each Edge e in edges.at(cur.vKey):
-    //            newCost = cur.cost + e.weight
-    //            If newCost < lowestCost[e.toKey]:
-    //                * lowestCost[e.toKey] = newCost
-    //                * Push PathRecord(e.toKey, newCost, cur.vKey) into toVisit
-    // 6. Return result map
+    if(!hasVertex(startKey)){
+        throw invalid_argument("error: start vertex not found");
+    }
+
+    unordered_map<int, SPResultRecord> result;
+
+    priority_queue<PathRecord, vector<PathRecord>, PathRecordComparator> toVisit;
+    unordered_map<int, int> lowestCost;
+
+    toVisit.push(PathRecord(startKey, 0, -1));
+    lowestCost[startKey] = 0;
+
+    while(!toVisit.empty()){
+        PathRecord cur = toVisit.top();
+        toVisit.pop();
+
+        if(result.count(cur.vKey)){
+            continue;
+        }
+
+        result[cur.vKey] = SPResultRecord(cur.cost, cur.parentKey);
+
+        if(edges.find(cur.vKey) != edges.end()){
+            for(const Edge &e : edges.at(cur.vKey)){
+                int newCost = cur.cost + e.weight;
+
+                if(!lowestCost.count(e.toKey) || newCost < lowestCost[e.toKey]){
+                    lowestCost[e.toKey] = newCost;
+                    toVisit.push(PathRecord(e.toKey, newCost, cur.vKey));
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 //PRE:
