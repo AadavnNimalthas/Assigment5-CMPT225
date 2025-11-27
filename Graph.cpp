@@ -17,18 +17,35 @@ using std::priority_queue;
 queue<int> Graph::bfs(int startKey) const
 {
 	// To Do: Complete this method
-    // 1. Make an empty queue<int> result
-    // 2. Make a visited unordered_map<int, bool>
-    // 3. Make a queue<int> toVisit and push startKey
-    // 4. Mark startKey visited = true
-    // 5. While toVisit is not empty:
-    //      a. Let v = toVisit.front(), pop it
-    //      b. Push v into result queue
-    //      c. For each Edge e in edges.at(v):
-    //           - If e.toKey not visited:
-    //                * Mark visited = true
-    //                * Push e.toKey into toVisit
-    // 6. Return result queue
+    if (!hasVertex(startKey)) {
+        throw invalid_argument("error: start vertex not found");
+    }
+
+    queue<int> result;
+    unordered_map<int, bool> visited;
+    queue<int> toVisit;
+
+    toVisit.push(startKey);
+    visited[startKey] = true;
+
+    while (!toVisit.empty()) {
+        int v = toVisit.front();
+        toVisit.pop();
+        result.push(v);
+
+        if (edges.find(v) != edges.end()) {
+            for (const Edge &e : edges.at(v))
+            {
+                if (!visited.count(e.toKey))
+                {
+                    visited[e.toKey] = true;
+                    toVisit.push(e.toKey);
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 //PRE: startKey is in the graph
