@@ -17,6 +17,18 @@ using std::priority_queue;
 queue<int> Graph::bfs(int startKey) const
 {
 	// To Do: Complete this method
+    // 1. Make an empty queue<int> result
+    // 2. Make a visited unordered_map<int, bool>
+    // 3. Make a queue<int> toVisit and push startKey
+    // 4. Mark startKey visited = true
+    // 5. While toVisit is not empty:
+    //      a. Let v = toVisit.front(), pop it
+    //      b. Push v into result queue
+    //      c. For each Edge e in edges.at(v):
+    //           - If e.toKey not visited:
+    //                * Mark visited = true
+    //                * Push e.toKey into toVisit
+    // 6. Return result queue
 }
 
 //PRE: startKey is in the graph
@@ -26,6 +38,18 @@ queue<int> Graph::bfs(int startKey) const
 queue<int> Graph::dfs(int startKey) const
 {
 	// To Do: Complete this method
+    // 1. Make an empty queue<int> result
+    // 2. Make a visited unordered_map<int, bool>
+    // 3. Make a stack<int> toVisit and push startKey
+    // 4. While stack is not empty:
+    //      a. Let v = stack.top(), pop it
+    //      b. If v not visited:
+    //            * Mark visited = true
+    //            * Push v into result queue
+    //      c. For each Edge e in edges.at(v) (optional: traverse list in reverse):
+    //            - If e.toKey not visited:
+    //                * Push e.toKey into the stack
+    // 5. Return result queue
 }
 
 //PRE: startKey and endKey are in the graph
@@ -37,6 +61,15 @@ queue<int> Graph::dfs(int startKey) const
 stack<int> Graph::getShortestPath(int startKey, int endKey, int& cost) const
 {
 	// To Do: Complete this method
+    // 1. Call dijkstra(startKey) -> store in map paths
+    // 2. Create empty stack<int> result
+    // 3. Let cur = endKey
+    // 4. totalCost = paths.at(endKey).cost
+    // 5. While cur != -1:
+    //        Push cur into result stack
+    //        cur = paths.at(cur).parentKey
+    // 6. Set cost = totalCost
+    // 7. Return result stack
 }
 
 // Helper method for getShortestPath
@@ -49,6 +82,24 @@ stack<int> Graph::getShortestPath(int startKey, int endKey, int& cost) const
 unordered_map<int, SPResultRecord> Graph::dijkstra(int startKey) const
 {
 	// To Do: Complete this method
+    // 1. Make unordered_map<int, SPResultRecord> result
+    // 2. Make a min-heap priority queue:
+    //      priority_queue<PathRecord, vector<PathRecord>, PathRecordComparator> toVisit
+    // 3. Make unordered_map<int, int> lowestCost
+    // 4. Insert initial record:
+    //      PathRecord(startKey, 0, -1) into toVisit
+    //      lowestCost[startKey] = 0
+    // 5. While toVisit not empty:
+    //      a. Pop top record -> call it cur
+    //      b. If cur.vKey already in result, skip (continue)
+    //      c. Add cur.vKey to result:
+    //            result[cur.vKey] = SPResultRecord(cur.cost, cur.parentKey)
+    //      d. For each Edge e in edges.at(cur.vKey):
+    //            newCost = cur.cost + e.weight
+    //            If newCost < lowestCost[e.toKey]:
+    //                * lowestCost[e.toKey] = newCost
+    //                * Push PathRecord(e.toKey, newCost, cur.vKey) into toVisit
+    // 6. Return result map
 }
 
 //PRE:
@@ -57,6 +108,27 @@ unordered_map<int, SPResultRecord> Graph::dijkstra(int startKey) const
 queue<Edge> Graph::mst() const
 {
 	// To Do: Complete this method
+    // 1. Copy all edges into a vector<Edge> allEdges (only one direction per edge, avoid duplicates)
+    // 2. Sort allEdges using sort()  (smallest weight first)
+    // 3. Create 2 maps for disjoint sets:
+    //      unordered_map<int, unordered_set<int>> sets
+    //      unordered_map<int, int> setID
+    // 4. For each vertex key v in vertices map:
+    //        Make a new set containing just v
+    //        sets[v] = {v}
+    //        setID[v] = v
+    // 5. Create empty queue<Edge> result
+    // 6. For each Edge e in sorted allEdges:
+    //      a. If setID[e.fromKey] == setID[e.toKey], skip (cycle)
+    //      b. Else union sets:
+    //            old = setID[e.toKey]
+    //            for each x in sets[old]:
+    //                 sets[setID[e.fromKey]].insert(x)
+    //                 setID[x] = setID[e.fromKey]
+    //            erase sets[old]
+    //      c. Push e into result queue
+    //      d. Stop when result size = numVertices - 1
+    // 7. Return result queue
 }
 
 // **END SECTION TO BE COMPLETED**---------------------------------
@@ -253,9 +325,9 @@ void Graph::printMST() const
 	queue<Edge> mstEdges = mst();
 
 	while (!mstEdges.empty()) {
-		cout << "from " << mstEdges.front().fromKey;
-		cout << " to " << mstEdges.front().toKey;
-		cout << ", weight = " << mstEdges.front().weight << endl;
-		mstEdges.pop();
-	}
+        cout << "from " << mstEdges.front().fromKey;
+        cout << " to " << mstEdges.front().toKey;
+        cout << ", weight = " << mstEdges.front().weight << endl;
+        mstEdges.pop();
+    }
 }
