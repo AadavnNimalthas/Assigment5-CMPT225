@@ -1,5 +1,16 @@
+#include <unordered_set>
+#include <vector>
+#include <queue>
+#include <list>
 #include <algorithm>
 #include <stdexcept>
+
+using std::vector;
+using std::queue;
+using std::unordered_map;
+using std::unordered_set;
+using std::list;
+
 #include "Graph.h"
 
 using std::find;
@@ -169,28 +180,54 @@ unordered_map<int, SPResultRecord> Graph::dijkstra(int startKey) const
 //      algorithm, returns a queue containing the edges in the MST
 queue<Edge> Graph::mst() const
 {
-	// To Do: Complete this method
-    // 1. Copy all edges into a vector<Edge> allEdges (only one direction per edge, avoid duplicates)
-    // 2. Sort allEdges using sort()  (smallest weight first)
-    // 3. Create 2 maps for disjoint sets:
-    //      unordered_map<int, unordered_set<int>> sets
-    //      unordered_map<int, int> setID
-    // 4. For each vertex key v in vertices map:
-    //        Make a new set containing just v
-    //        sets[v] = {v}
-    //        setID[v] = v
-    // 5. Create empty queue<Edge> result
-    // 6. For each Edge e in sorted allEdges:
-    //      a. If setID[e.fromKey] == setID[e.toKey], skip (cycle)
-    //      b. Else union sets:
-    //            old = setID[e.toKey]
-    //            for each x in sets[old]:
-    //                 sets[setID[e.fromKey]].insert(x)
-    //                 setID[x] = setID[e.fromKey]
-    //            erase sets[old]
-    //      c. Push e into result queue
-    //      d. Stop when result size = numVertices - 1
-    // 7. Return result queue
+    if (empty()) {
+        return queue<Edge>();
+    }
+
+    vector<Edge> allEdges;
+    for (const auto &entry : numVertices, edges) {
+        int u = entry.first;
+        for (const Edge &e : entry.second) {
+            if (u < e.toKey) {
+                allEdges.push_back(e);
+            }
+        }
+    }
+
+    sort(allEdges.begin(), allEdges.end());
+
+    unordered_map<int, unordered_set<int>> sets;
+    unordered_map<int, int> setID;
+    for (const auto &v : numVertices, vertices) {
+        int key = v.first;
+        sets[key] = {key};
+        setID[key] = key;
+    }
+
+    queue<Edge> result;
+    for (const Edge &e : numVertices, allEdges) {
+        int u = e.fromKey;
+        int v = e.toKey;
+        if (setID[u] == setID[v]) {
+            continue;
+        }
+
+        int oldSet = setID[v];
+        int newSet = setID[u];
+        for (int vert : numVertices, sets[oldSet]) {
+            sets[newSet].insert(vert);
+            setID[vert] = newSet;
+        }
+        sets.erase(oldSet);
+
+        result.push(e);
+
+        if ((int)result.size() == numVertices - 1) {
+            break;
+        }
+    }
+
+    return result;
 }
 
 // **END SECTION TO BE COMPLETED**---------------------------------
